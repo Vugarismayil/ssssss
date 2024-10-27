@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol</title>
+</head>
+<body>
+    <h1>Kayıt Ol</h1>
+    <form id="registerForm">
+        <label for="username">Kullanıcı Adı:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Şifre:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <label for="email">E-posta:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <div id="codeInput" style="display: none;">
+            <label for="verificationCode">Doğrulama Kodu:</label>
+            <input type="text" id="verificationCode" required>
+        </div>
+        <br>
+        <button type="button" id="requestCodeButton">Doğrulama Kodu İste</button>
+        <button type="submit" style="display: none;" id="registerButton">Kayıt Ol</button>
+    </form>
+    <p id="message"></p>
+
+    <script>
+        document.getElementById('requestCodeButton').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+
+            // E-posta kontrolü
+            if (!email) {
+                alert('Lütfen önce e-posta adresinizi girin.');
+                return;
+            }
+
+            // Fetch API ile doğrulama kodu isteği gönderme
+            fetch('http://localhost:5000/request_verification_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('message').textContent = 'E-posta gönderildi.';
+                    document.getElementById('codeInput').style.display = 'block'; // Kodu girmek için alanı göster
+                    document.getElementById('registerButton').style.display = 'block'; // Kayıt butonunu göster
+                    document.getElementById('requestCodeButton').style.display = 'none'; // Doğrulama kodu iste butonunu gizle
+                } else {
+                    document.getElementById('message').textContent = 'Doğrulama kodu isteği sırasında hata oluştu.';
+                }
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                document.getElementById('message').textContent = 'Doğrulama kodu isteği sırasında hata oluştu.';
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Formun gönderilmesini engelle
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const verificationCode = document.getElementById('verificationCode').value;
+
+            // Verileri JSON formatında hazırlama
+            const userData = {
+                username: username,
+                password: password,
+                email: email,
+                verification_code: verificationCode  // Doğrulama kodunu ekle
+            };
+
+            // Fetch API ile verileri backend'e gönderme
+            fetch('http://localhost:5000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('message').textContent = 'Kayıt başarılı!';
+                } else {
+                    document.getElementById('message').textContent = data.error; // Hata mesajını göster
+                }
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                document.getElementById('message').textContent = 'Kayıt sırasında hata oluştu.';
+            });
+        });
+    </script>
+</body>
+</html>

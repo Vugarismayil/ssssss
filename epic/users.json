@@ -1,0 +1,16 @@
+[
+  {
+    "username": "admin",
+    "password": "123",
+    "email": "sahil.ibrahimli@icloud.com",
+    "verification_code": "123123",
+    "external_ip": "91.191.201.38"
+  },
+  {
+    "username": "sako",
+    "password": "12345",
+    "email": "ssakolu1@gmail.com",
+    "verification_code": "123321",
+    "external_ip": "91.191.201.38"
+  }
+]
